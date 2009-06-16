@@ -1,0 +1,103 @@
+# vim:tw=0:ts=4:sw=4:et
+%define major @RELEASE_MAJOR@
+%define minor @RELEASE_MINOR@
+%define micro @RELEASE_MICRO@
+%define extra @RELEASE_RPM_EXTRA@
+%define release_version %{major}.%{minor}.%{micro}%{extra}
+
+# required by suse build system
+# norootforbuild
+
+%define run_unit_tests 1
+%{?_without_unit_tests: %define run_unit_tests 0}
+%{?_with_unit_tests:    %define run_unit_tests 1}
+
+%define python_xml_BR %{nil}
+# Some variable definitions so that we can be compatible between SUSE Build service and Fedora build system
+# SUSE: fedora_version  suse_version rhel_version centos_version sles_version
+# Fedora: fedora dist fc8 fc9
+%if 0%{?suse_version} || 0%{?sles_version}
+    %define python_xml_BR python-xml
+%endif
+
+# per fedora python packaging guidelines
+%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+
+# no debuginfo package, as there are no compiled binaries.
+%define debug_package %{nil}
+
+
+Name:           dell_ft_pie_packager
+Version:        %{release_version}
+Release:        1%{?dist}
+Summary:        A firmware-tools plugin to handle converting Dell DUPs to FT format.
+
+Group:          Applications/System
+# License is actually GPL/OSL dual license (GPL Compatible), but rpmlint complains
+License:        GPL style
+URL:            http://linux.dell.com/libsmbios/download/
+Source0:        http://linux.dell.com/libsmbios/download/%{name}/%{name}-%{version}/%{name}-%{version}.tar.gz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+# SUSE doesnt have noarch python, so for SUSE, always build arch-dependent
+%if ! 0%{?suse_version}
+BuildArch: noarch
+%endif
+
+BuildRequires:  python-devel, firmware-tools, firmware-addon-dell, %{python_xml_BR}
+Requires: firmware-tools >= 0:2.0.0, firmware-addon-dell >= 0:2.0, p7zip
+
+%description
+make this a better description eventually
+
+%prep
+%setup -q
+
+
+%build
+# this line lets us build an RPM directly from a git tarball
+[ -e ./configure ] || \
+    RELEASE_MAJOR=%{major}  \
+    RELEASE_MINOR=%{minor}  \
+    RELEASE_MICRO=%{micro}  \
+    RELEASE_EXTRA=%{extra}  \
+    ./autogen.sh --no-configure
+
+# fix problems when buildsystem time is out of sync. ./configure will
+# fail if newly created files are older than the packaged files.
+# this should normally be a no-op on proper buildsystems.
+touch configure
+find . -type f -newer configure -print0 | xargs -r0 touch
+
+%configure
+make -e %{?_smp_mflags}
+
+%check
+make -e %{?_smp_mflags} check
+
+%install
+# Fedora Packaging guidelines
+rm -rf $RPM_BUILD_ROOT
+# SUSE Packaging rpmlint
+mkdir $RPM_BUILD_ROOT
+
+make install DESTDIR=%{buildroot} INSTALL="%{__install} -p"
+mkdir -p $RPM_BUILD_ROOT/%{_datadir}/firmware/dell/dup/
+
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+
+%files
+%defattr(-,root,root,-)
+%doc COPYING-GPL COPYING-OSL README
+%{python_sitelib}/*
+%{_datadir}/firmware/dell/dup/
+%config(noreplace) %{_sysconfdir}/firmware/firmware.d/*.conf
+%{_datadir}/firmware-tools/*
+
+
+%changelog
+* Thu May 24 2007 Michael E Brown <michael_e_brown at dell.com> - 1.3.0-1
+- Fedora-compliant packaging changes.
