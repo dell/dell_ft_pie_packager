@@ -44,7 +44,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 %endif
 
-BuildRequires:  python-devel, firmware-tools, firmware-addon-dell, %{python_xml_BR}
+BuildRequires:  python-devel, firmware-tools, firmware-addon-dell, firmware-extract, %{python_xml_BR}
 Requires: firmware-tools >= 0:2.0.0, firmware-addon-dell >= 0:2.0, p7zip
 
 %description

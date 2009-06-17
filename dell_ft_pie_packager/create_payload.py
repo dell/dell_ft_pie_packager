@@ -144,7 +144,7 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
             break
         
     extracted = False
-    for packageIni, outdir in getOutputDirs( dom, statusObj, outputTopdir, logger ):
+    for packageIni, outdir in getOutputDirs( dom, statusObj, outputTopdir, logger, conf ):
         shutil.rmtree(outdir, ignore_errors=1)
         try:
             os.makedirs( os.path.dirname(outdir) )
@@ -165,7 +165,7 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
 
     return extracted
 
-def getOutputDirs(dom, statusObj, outputTopdir, logger):
+def getOutputDirs(dom, statusObj, outputTopdir, logger, config):
     deps = []
     for sysId in getSystemDependencies(dom):
         deps.append(sysId)
@@ -174,7 +174,7 @@ def getOutputDirs(dom, statusObj, outputTopdir, logger):
     vendorVersion = HelperXml.getNodeAttribute(dom, "vendorVersion", "SoftwareComponent").lower()
     sysDepTemplate = "system_ven_0x%04x_dev_0x%04x"
 
-    pobj = subprocess.Popen( ["xsltproc", conf.device_type_xsl, dom.filename], stdout=subprocess.PIPE )
+    pobj = subprocess.Popen( ["xsltproc", config.device_type_xsl, dom.filename], stdout=subprocess.PIPE )
     (stdout, stderr) = pobj.communicate(None)
     def validate(letter):
         if letter.isalnum():
