@@ -21,6 +21,7 @@ import sys
 import subprocess
 import xml.dom.minidom
 
+import dell_ft_pie_packager
 from firmwaretools.trace_decorator import decorate, traceLog, getLog
 import firmwaretools.plugins as plugins
 import firmware_addon_dell.HelperXml as HelperXml
