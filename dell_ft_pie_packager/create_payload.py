@@ -73,12 +73,16 @@ def checkConf(conf, opts):
 # END Extract hooks
 #####################
 
+class BadPie(Exception): pass
 
 decorate(traceLog())
 def getSystemDependencies(dom):
     ''' returns list of supported systems from package xml '''
     for systemId in HelperXml.iterNodeAttribute(dom, "systemID", "SoftwareComponent", "SupportedSystems", "Brand", "Model"):
-        yield int(systemId, 16)
+        if systemId is None:
+            pass
+        else:
+            yield int(systemId, 16)
 
 decorate(traceLog())
 def getPciDevices(dom=None, deviceNode=None):
@@ -96,13 +100,12 @@ def getPciDevices(dom=None, deviceNode=None):
         dev = int(HelperXml.getNodeAttribute(pci, "deviceID"),16)
         subven = HelperXml.getNodeAttribute(pci, "subVendorID")
         subdev = HelperXml.getNodeAttribute(pci, "subDeviceID")
-        if subven != None and subdev != None :
+        if subven is not None and subdev is not None :
             subven = int(subven,16)
             subdev = int(subdev,16)
+            yield (ven, dev, subven, subdev)
         else:
-            subven = None
-            subdev = None
-        yield (ven, dev, subven, subdev)
+            yield (ven, dev)
 
 
 
@@ -129,6 +132,7 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
 
     payloadDir = os.path.join(statusObj.tmpdir, "payload")
     os.makedirs(payloadDir)
+    pieGood = False
     for location in payloadLoc:
         subprocess.call( ["7za", "x", statusObj.tmpfile, location[0], "-o%s" % statusObj.tmpdir], stdout=file("/dev/null", "w+"), stderr=subprocess.STDOUT )
         globString = statusObj.tmpdir
@@ -136,12 +140,15 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
             globString = os.path.join(globString, elem)
         payloadList = glob.glob(globString)
         if len(payloadList):
+            pieGood = True
             for unit in payloadList:
                 if os.path.isdir(unit):                    
                     shutil.copytree(unit, os.path.join(payloadDir, os.path.basename(unit)))
                 else:
                     shutil.copy(unit, payloadDir)
             break
+    if not pieGood:
+        raise BadPie, "The pie was bad"
         
     extracted = False
     for packageIni, outdir in getOutputDirs( dom, statusObj, outputTopdir, logger, conf ):
@@ -209,12 +216,10 @@ def getOutputDirs(dom, statusObj, outputTopdir, logger, config):
         gotPciDev = False
         for pciTuple in getPciDevices(deviceNode=devNode):
             gotPciDev = True
-            fwShortName = "pci_firmware_ven_0x%04x_dev_0x%04x_subven_0x%04x_subdev_0x%04x" % pciTuple
-            fwFullName = ("%s_version_%s" % (fwShortName,dellVersion)).lower()
-            depName     = "pci_firmware(ven_0x%04x_dev_0x%04x_subven_0x%04x_subdev_0x%04x)" % pciTuple
-
             logger.info("  PCI Device: %s" % repr(pciTuple))
 
+            fwShortName = "pci_firmware_ven_0x%04x_dev_0x%04x" % (pciTuple[0], pciTuple[1])
+            depName     = "pci_firmware(ven_0x%04x_dev_0x%04x)" % (pciTuple[0], pciTuple[1])
             common.setIni( packageIni, "package",
                 name      = depName,
                 safe_name = fwShortName,
@@ -222,9 +227,17 @@ def getOutputDirs(dom, statusObj, outputTopdir, logger, config):
 
                 vendor_id =    "0x%04x" % pciTuple[0],
                 device_id =    "0x%04x" % pciTuple[1],
-                subvendor_id = "0x%04x" % pciTuple[2],
-                subdevice_id = "0x%04x" % pciTuple[3],
                 )
+
+            if len(pciTuple) is 4:
+                fwShortName = "pci_firmware_ven_0x%04x_dev_0x%04x_subven_0x%04x_subdev_0x%04x" % pciTuple
+                depName     = "pci_firmware(ven_0x%04x_dev_0x%04x_subven_0x%04x_subdev_0x%04x)" % pciTuple
+                common.setIni( packageIni, "package",
+                               subvendor_id = "0x%04x" % pciTuple[2],
+                               subdevice_id = "0x%04x" % pciTuple[3],
+                               )
+
+            fwFullName = ("%s_version_%s" % (fwShortName,dellVersion)).lower()
 
             for i,j in yieldIniAndPath(packageIni, outputTopdir, deps, fwFullName, sysDepTemplate, logger):
                 yield i,j
