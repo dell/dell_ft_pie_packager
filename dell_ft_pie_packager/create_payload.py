@@ -66,7 +66,7 @@ def checkConf(conf, opts):
     if opts.device_type_xsl is not None:
         conf.device_type_xsl = os.path.realpath(os.path.expanduser(opts.device_type_xsl))
     if getattr(conf, "device_type_xsl", None) is None:
-        conf.helper_dat = ""  # <-- the default if no cfg or cmdline
+        conf.device_type_xsl = "/usr/share/firmware-tools/DeviceType.xsl"
     return conf
 
 #####################
@@ -127,8 +127,9 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
         [ "common/payload",   [ "common", "payload", "*" ] ], \
         [ "Common/payload",   [ "Common", "payload", "*" ] ], \
         [ "common",           [ "common", "*" ] ], \
+        [ "Common",           [ "Common", "*" ] ], \
+        [ "common\\payload\\*", [ "common\\payload\\*" ] ] \
         ]
-    #   [ "common\\payload\\*", [ "common\\payload\\*" ] ] \
 
     payloadDir = os.path.join(statusObj.tmpdir, "payload")
     os.makedirs(payloadDir)
@@ -142,6 +143,10 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
         if len(payloadList):
             pieGood = True
             for unit in payloadList:
+                if "\\" in unit:
+                    newName = os.path.join(os.path.dirname(unit), unit.split("\\")[-1])
+                    os.rename(unit, newName)
+                    unit = newName
                 if os.path.isdir(unit):                    
                     shutil.copytree(unit, os.path.join(payloadDir, os.path.basename(unit)))
                 else:
@@ -233,6 +238,8 @@ def getOutputDirs(dom, statusObj, outputTopdir, logger, config):
                 fwShortName = "pci_firmware_ven_0x%04x_dev_0x%04x_subven_0x%04x_subdev_0x%04x" % pciTuple
                 depName     = "pci_firmware(ven_0x%04x_dev_0x%04x_subven_0x%04x_subdev_0x%04x)" % pciTuple
                 common.setIni( packageIni, "package",
+                               name      = depName,
+                               safe_name = fwShortName,
                                subvendor_id = "0x%04x" % pciTuple[2],
                                subdevice_id = "0x%04x" % pciTuple[3],
                                )

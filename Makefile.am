@@ -6,7 +6,7 @@ pkgconfdir = $(sysconfdir)/firmware/firmware.d/
 dist_pkgconf_DATA = pkg/dell_ft_pie_packager.conf
 
 pkgdatadir = $(datadir)/firmware-tools/
-dist_pkgdata_DATA = pkg/update-payload.spec.in
+dist_pkgdata_DATA = pkg/update-payload.spec.in pkg/DeviceType.xsl
 
 pkgpython_PYTHON = \
 	dell_ft_pie_packager/buildrpm_plugin.py	\

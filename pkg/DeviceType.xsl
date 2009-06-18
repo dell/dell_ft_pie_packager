@@ -9,7 +9,7 @@
 </xsl:template>
 
 <xsl:template name="PackageXML" >
-            <xsl:variable name="sCompId">
+           <xsl:variable name="sCompId">
 	 		<xsl:value-of select="//SoftwareComponent/SupportedDevices/Device/@componentID"/>
 	      </xsl:variable>
 		<xsl:choose >
@@ -65,6 +65,9 @@
 							<xsl:when test="$sCompId = '18991'" >
 								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
 							</xsl:when>					
+						<xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Seagate ES')" >
+							<xsl:value-of select="string('SASHDD SASHDD')" />
+						</xsl:when>
 						</xsl:choose>	
 					</xsl:when>					
 					<xsl:otherwise >
@@ -80,24 +83,35 @@
 				</xsl:choose>	
 			</xsl:when>
 
+			<xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Seagate ES')" >
+				<xsl:value-of select="string('SASHDD SASHDD')" />
+			</xsl:when>
+
 			<xsl:when test="//ComponentType/@value='DRVR'" >
 				<xsl:apply-templates select="//ComponentType" />
 				<xsl:apply-templates select="//LUCategory" />		
 			</xsl:when>
 			<xsl:when test="//ComponentType/@value='APAC'" >
 				<xsl:choose>	
-					<xsl:when test="//SoftwareComponent/Category/@value = 'DI'">
-						<xsl:value-of select="string('MASER DIAGS')" />
-					</xsl:when>
-					<xsl:when test="//SoftwareComponent/Category/@value = 'SM'">
-						<xsl:value-of select="string('MASER USC')" />
-					</xsl:when>
-					<xsl:when test="//SoftwareComponent/Category/@value = 'SV'">
-						<xsl:value-of select="string('MASER USC')" />
+				<xsl:when test="//SoftwareComponent/Category/@value = 'DI'">
+					<xsl:value-of select="string('MASER DIAGS')" />
+				</xsl:when>
+				<xsl:when test="//SoftwareComponent/Category/@value = 'SM'">
+					<xsl:value-of select="string('MASER USC')" />
+				</xsl:when>
+				<xsl:when test="//SoftwareComponent/Category/@value = 'SV'">
+					<xsl:choose>
+       			              	<xsl:when test="$sCompId = '18981'" >
+						<xsl:value-of select="string('MASER DP')" />
 					</xsl:when>
 					<xsl:otherwise>
-						<xsl:value-of select="string('MASER Unknown')" />
+						<xsl:value-of select="string('MASER USC')" />
 					</xsl:otherwise>					
+					</xsl:choose>	
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="string('MASER Unknown')" />
+				</xsl:otherwise>					
 				</xsl:choose>	
 			</xsl:when>
 			<xsl:when test="//SoftwareComponent/Category/@value = 'ES' and $sCompId= '13791'">
@@ -249,6 +263,10 @@
 			<xsl:when test="//SoftwareComponent/@releaseID='R115969'">
 				<xsl:value-of select="string('FRMW BMC')" />
 			</xsl:when>
+			<xsl:when test="//SoftwareComponent/Category/@value = 'PS'">
+				<xsl:value-of select="string('FRMW PSU')" />
+			</xsl:when>
+
 			<xsl:otherwise >
 				<xsl:apply-templates select="//ComponentType" />
 				<xsl:apply-templates select="//LUCategory" />
