@@ -21,7 +21,11 @@ Provides: #safe_name##system_provides# = %{epoch}:%{version}-%{release}
 Requires: dell_ie_module(#ie_type#)
 
 %if "#vendor_id#" != "%{nil}"
+%if "#subvendor_id#" != "%{nil}"
 Provides: pci_firmware(ven_#vendor_id#_dev_#device_id#_subven_#subvendor_id#_subdev_#subdevice_id#)#system_provides# = %{epoch}:%{version}-%{release}
+%else
+Provides: pci_firmware(ven_#vendor_id#_dev_#device_id#)#system_provides# = %{epoch}:%{version}-%{release}
+%endif
 %endif
 
 %description
