@@ -12,10 +12,6 @@ import os
 exeName = os.path.realpath(sys.argv[0])
 dirName = os.path.dirname(exeName)
 
-class DummyLogger(object):
-    def info(a, b):
-        return
-
 class TestCase(unittest.TestCase):
     def setUp(self):
         if globals().get('dell_ft_pie_packager'): del(dell_ft_pie_packager)
@@ -48,14 +44,18 @@ class TestCase(unittest.TestCase):
         import xml.dom.minidom
         import dell_ft_pie_packager.create_payload as create_payload
 
+        class DummyLogger(object):
+            def info(a, b):
+                return
+        class Config(object):
+            device_type_xsl = os.path.join(dirName, "..", "pkg", "DeviceType.xsl")
+
+        create_payload.conf = Config()
         packageXml = os.path.join(dirName, "package.xml")
         dom = xml.dom.minidom.parse(packageXml)
         dom.filename = packageXml
-        class Config(object):
-            device_type_xsl = os.path.join(dirName, "..", "pkg", "DeviceType.xsl")
-        logger = DummyLogger()
 
-        for packageIni, outdir in create_payload.getOutputDirs( dom, None, "dir", logger, Config ):
+        for packageIni, outdir in create_payload.getOutputDirs( dom, None, "dir", DummyLogger() ):
             self.assertEqual(outdir, "dir/dup/system_ven_0x1028_dev_0x019a/dell_dup_componentid_00159_version_a03")
             self.assertEqual(packageIni.get("package", "limit_system_support"), "ven_0x1028_dev_0x019a")
             self.assertEqual(packageIni.get("package", "name"), "dell_dup_componentid_00159")

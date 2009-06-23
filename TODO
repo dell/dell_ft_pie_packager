@@ -1,0 +1,11 @@
+
+change data dir to its own dir instead of using firmware-tools dir
+
+figure out p7zip rpm, will it be the same on each os?
+
+try to unzip all dirs, then check if anything came out with all the globs, instead of looping
+
+instead of bad pie, raise common.skip and log the error
+
+getoutputdir is kinda long
+

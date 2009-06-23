@@ -73,6 +73,7 @@ find . -type f -newer configure -print0 | xargs -r0 touch
 make -e %{?_smp_mflags}
 
 %check
+make -e %{?_smp_mflags} check
 
 %install
 # Fedora Packaging guidelines

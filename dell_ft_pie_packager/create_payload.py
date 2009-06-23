@@ -79,10 +79,11 @@ decorate(traceLog())
 def getSystemDependencies(dom):
     ''' returns list of supported systems from package xml '''
     for systemId in HelperXml.iterNodeAttribute(dom, "systemID", "SoftwareComponent", "SupportedSystems", "Brand", "Model"):
-        if systemId is None:
-            pass
-        else:
+        try:
             yield int(systemId, 16)
+        except TypeError:
+            # log error to exceptions log
+            pass
 
 decorate(traceLog())
 def getPciDevices(dom=None, deviceNode=None):
@@ -100,12 +101,10 @@ def getPciDevices(dom=None, deviceNode=None):
         dev = int(HelperXml.getNodeAttribute(pci, "deviceID"),16)
         subven = HelperXml.getNodeAttribute(pci, "subVendorID")
         subdev = HelperXml.getNodeAttribute(pci, "subDeviceID")
+        yieldval = [ven, dev]
         if subven is not None and subdev is not None :
-            subven = int(subven,16)
-            subdev = int(subdev,16)
-            yield (ven, dev, subven, subdev)
-        else:
-            yield (ven, dev)
+            yieldval.extend([(int(subven, 16), int(subdev, 16))])
+        yield yieldval
 
 
 
@@ -123,12 +122,12 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
     dom = xml.dom.minidom.parse(packageXml)
     dom.filename = packageXml
 
-    payloadLoc = [ \
-        [ "common/payload",   [ "common", "payload", "*" ] ], \
-        [ "Common/payload",   [ "Common", "payload", "*" ] ], \
-        [ "common",           [ "common", "*" ] ], \
-        [ "Common",           [ "Common", "*" ] ], \
-        [ "common\\payload\\*", [ "common\\payload\\*" ] ] \
+    payloadLoc = [
+        [ "common/payload",   [ "common", "payload", "*" ] ],
+        [ "Common/payload",   [ "Common", "payload", "*" ] ],
+        [ "common",           [ "common", "*" ] ],
+        [ "Common",           [ "Common", "*" ] ],
+        [ "common\\payload\\*", [ "common\\payload\\*" ] ],
         ]
 
     payloadDir = os.path.join(statusObj.tmpdir, "payload")
@@ -156,7 +155,7 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
         raise BadPie, "The pie was bad"
         
     extracted = False
-    for packageIni, outdir in getOutputDirs( dom, statusObj, outputTopdir, logger, conf ):
+    for packageIni, outdir in getOutputDirs( dom, statusObj, outputTopdir, logger ):
         shutil.rmtree(outdir, ignore_errors=1)
         try:
             os.makedirs( os.path.dirname(outdir) )
@@ -177,7 +176,7 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
 
     return extracted
 
-def getOutputDirs(dom, statusObj, outputTopdir, logger, config):
+def getOutputDirs(dom, statusObj, outputTopdir, logger):
     deps = []
     for sysId in getSystemDependencies(dom):
         deps.append(sysId)
@@ -186,7 +185,7 @@ def getOutputDirs(dom, statusObj, outputTopdir, logger, config):
     vendorVersion = HelperXml.getNodeAttribute(dom, "vendorVersion", "SoftwareComponent").lower()
     sysDepTemplate = "system_ven_0x%04x_dev_0x%04x"
 
-    pobj = subprocess.Popen( ["xsltproc", config.device_type_xsl, dom.filename], stdout=subprocess.PIPE )
+    pobj = subprocess.Popen( ["xsltproc", conf.device_type_xsl, dom.filename], stdout=subprocess.PIPE )
     (stdout, stderr) = pobj.communicate(None)
     def validate(letter):
         if letter.isalnum():
@@ -225,24 +224,21 @@ def getOutputDirs(dom, statusObj, outputTopdir, logger, config):
 
             fwShortName = "pci_firmware_ven_0x%04x_dev_0x%04x" % (pciTuple[0], pciTuple[1])
             depName     = "pci_firmware(ven_0x%04x_dev_0x%04x)" % (pciTuple[0], pciTuple[1])
+            if len(pciTuple) == 4:
+                fwShortName = "pci_firmware_ven_0x%04x_dev_0x%04x_subven_0x%04x_subdev_0x%04x" % pciTuple
+                depName     = "pci_firmware(ven_0x%04x_dev_0x%04x_subven_0x%04x_subdev_0x%04x)" % pciTuple
+                common.setIni( packageIni, "package",
+                               subvendor_id = "0x%04x" % pciTuple[2],
+                               subdevice_id = "0x%04x" % pciTuple[3],
+                               )
+
             common.setIni( packageIni, "package",
                 name      = depName,
                 safe_name = fwShortName,
                 pciId     = pciTuple,
-
                 vendor_id =    "0x%04x" % pciTuple[0],
                 device_id =    "0x%04x" % pciTuple[1],
                 )
-
-            if len(pciTuple) is 4:
-                fwShortName = "pci_firmware_ven_0x%04x_dev_0x%04x_subven_0x%04x_subdev_0x%04x" % pciTuple
-                depName     = "pci_firmware(ven_0x%04x_dev_0x%04x_subven_0x%04x_subdev_0x%04x)" % pciTuple
-                common.setIni( packageIni, "package",
-                               name      = depName,
-                               safe_name = fwShortName,
-                               subvendor_id = "0x%04x" % pciTuple[2],
-                               subdevice_id = "0x%04x" % pciTuple[3],
-                               )
 
             fwFullName = ("%s_version_%s" % (fwShortName,dellVersion)).lower()
 
