@@ -17,57 +17,12 @@
 				<xsl:choose >
 					<xsl:when test="//SoftwareComponent/ComponentType/@value= 'FRMW'" >
 						<xsl:choose>	
-							<xsl:when test="$sCompId = '14696'" >
-								<xsl:value-of select="string('BROADCOM-NX1 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '14751'" >
-								<xsl:value-of select="string('BROADCOM-NX1 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '10264'" >
+							<xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Seagate ES')" >
+								<xsl:value-of select="string('SASHDD SASHDD')" />
+							</xsl:when>
+							<xsl:otherwise >
 								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '10265'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '13869'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '16814'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '16815'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '17555'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '17730'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '17731'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '17734'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '17735'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '17737'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '17743'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '18792'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-							<xsl:when test="$sCompId = '18991'" >
-								<xsl:value-of select="string('BROADCOM-NX2 FRMW')" />
-							</xsl:when>					
-						<xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Seagate ES')" >
-							<xsl:value-of select="string('SASHDD SASHDD')" />
-						</xsl:when>
+							</xsl:otherwise>
 						</xsl:choose>	
 					</xsl:when>					
 					<xsl:otherwise >

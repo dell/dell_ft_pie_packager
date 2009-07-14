@@ -101,9 +101,10 @@ def getPciDevices(dom=None, deviceNode=None):
         dev = int(HelperXml.getNodeAttribute(pci, "deviceID"),16)
         subven = HelperXml.getNodeAttribute(pci, "subVendorID")
         subdev = HelperXml.getNodeAttribute(pci, "subDeviceID")
-        yieldval = [ven, dev]
         if subven is not None and subdev is not None :
-            yieldval.extend([(int(subven, 16), int(subdev, 16))])
+            yieldval = (ven, dev, int(subven, 16), int(subdev, 16))
+        else:
+            yieldval = (ven, dev)
         yield yieldval
 
 
