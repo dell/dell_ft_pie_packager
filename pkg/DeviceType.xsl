@@ -73,11 +73,21 @@
                           <xsl:value-of select="string('ESM IMC')" />
 			</xsl:when>
 			<xsl:when test="//SoftwareComponent/Category/@value = 'ES' and $sCompId= '15051'">
-                          <xsl:value-of select="string('ESM IMC')" />
+				<xsl:choose>	
+				<xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'v.1')" >
+					<xsl:value-of select="string('ESM IMC')" />
+				</xsl:when>
+				<xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'v.2')" >
+					<xsl:value-of select="string('ESM Oxygen')" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="string('ESM Oxygen')" />
+				</xsl:otherwise>					
+				</xsl:choose>	
 			</xsl:when>
-      <xsl:when test="//SoftwareComponent/Category/@value = 'ES' and $sCompId= '20137'">
-	<xsl:value-of select="string('ESM Nitrogen')" />
-      </xsl:when>
+			<xsl:when test="//SoftwareComponent/Category/@value = 'ES' and $sCompId= '20137'">
+				<xsl:value-of select="string('ESM Nitrogen')" />
+			</xsl:when>
 			<xsl:when test="//SoftwareComponent/Category/@value = 'SN' and $sCompId= '13910'">
 				<xsl:value-of select="string('MPTLSI U320')" />
 			</xsl:when>
