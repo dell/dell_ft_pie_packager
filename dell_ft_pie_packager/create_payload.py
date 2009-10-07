@@ -133,6 +133,8 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
 
     payloadDir = os.path.join(statusObj.tmpdir, "payload")
     os.makedirs(payloadDir)
+    shutil.copyfile( packageXml, os.path.join(payloadDir, "package.xml") )
+    
     pieGood = False
     for location in payloadLoc:
         subprocess.call( ["7za", "x", statusObj.tmpfile, location[0], "-o%s" % statusObj.tmpdir], stdout=file("/dev/null", "w+"), stderr=subprocess.STDOUT )
@@ -183,6 +185,7 @@ def getOutputDirs(dom, statusObj, outputTopdir, logger):
         deps.append(sysId)
 
     dellVersion   = HelperXml.getNodeAttribute(dom, "dellVersion", "SoftwareComponent").lower()
+    dellVersion = dellVersion.replace("-", ".")
     vendorVersion = HelperXml.getNodeAttribute(dom, "vendorVersion", "SoftwareComponent").lower()
     sysDepTemplate = "system_ven_0x%04x_dev_0x%04x"
 
