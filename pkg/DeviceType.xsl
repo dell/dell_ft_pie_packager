@@ -93,6 +93,9 @@
       <xsl:when test="//SoftwareComponent/Category/@value = 'ES' and $sCompId= '20137'">
 	<xsl:value-of select="string('ESM Nitrogen')" />
       </xsl:when>
+      <xsl:when test="//SoftwareComponent/Category/@value = 'ES' and $sCompId= '160'">
+	<xsl:value-of select="string('ESM Nitrogen')" />
+      </xsl:when>
       <xsl:when test="//SoftwareComponent/Category/@value = 'SN' and $sCompId= '13910'">
 	<xsl:value-of select="string('MPTLSI U320')" />
       </xsl:when>
@@ -205,11 +208,11 @@
       <xsl:when test="contains(string(//SoftwareComponent/SupportedDevices/Device/Display), '6Gbps SAS')" >
 	<xsl:value-of select="string('PERC7 PERC')" />
       </xsl:when>
+      <xsl:when test="contains(string(//SoftwareComponent/SupportedDevices/Device/Display), '6G Backplane')" >
+	<xsl:value-of select="string('PERC7 PERC')" />
+      </xsl:when>
       <xsl:when test="contains(string(//SoftwareComponent/SupportedDevices/Device/Display), 'PERC S300')" >
 	<xsl:value-of select="string('PERC SOFT')" />
-      </xsl:when>
-      <xsl:when test="contains(string(//SoftwareComponent/SupportedDevices/Device/Display), 'BMC Firmware')" >
-	<xsl:value-of select="string('FRMW BMC')" />
       </xsl:when>
       <xsl:when test="contains(translate(string(//SoftwareComponent/SupportedDevices/Device/Display), 'CERC 6', 'CERC 6'), 'CERC 6')" >
 	<xsl:value-of select="string('CERC6 PERC')" />
