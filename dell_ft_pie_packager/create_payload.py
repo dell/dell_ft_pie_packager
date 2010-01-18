@@ -179,13 +179,22 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
 
     return extracted
 
+decorate(traceLog())
+def sanatizeDellVersion(dellVersion):
+    splitList = dellVersion.split()
+    dellVersion = splitList[0]
+    splitList = dellVersion.split('-')
+    dellVersion = splitList[0]
+    return dellVersion
+
+decorate(traceLog())
 def getOutputDirs(dom, statusObj, outputTopdir, logger):
     deps = []
     for sysId in getSystemDependencies(dom):
         deps.append(sysId)
 
     dellVersion   = HelperXml.getNodeAttribute(dom, "dellVersion", "SoftwareComponent").lower()
-    dellVersion = dellVersion.replace("-", ".")
+    dellVersion = sanatizeDellVersion(dellVersion)
     vendorVersion = HelperXml.getNodeAttribute(dom, "vendorVersion", "SoftwareComponent").lower()
     sysDepTemplate = "system_ven_0x%04x_dev_0x%04x"
 
