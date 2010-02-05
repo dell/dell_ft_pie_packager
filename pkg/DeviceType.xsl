@@ -41,6 +41,12 @@
       <xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Seagate ES')" >
 	<xsl:value-of select="string('SASHDD SASHDD')" />
       </xsl:when>
+      <xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Samsung SSD')" >
+	<xsl:value-of select="string('SASHDD SASHDD')" />
+      </xsl:when>
+      <xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Backplane Expander')" >
+	<xsl:value-of select="string('SASBP SASBP')" />
+      </xsl:when>
       <xsl:when test="//ComponentType/@value='DRVR' and contains(string(//SoftwareComponent/SupportedDevices/Device/Display), 'PERC S')">
 	<xsl:value-of select="string('DRVR SOFT')" />
       </xsl:when>
@@ -159,6 +165,12 @@
             <xsl:value-of select="string('Tape IBM')" />
 	  </xsl:when>					
           <xsl:when test="$sCompId = '15371'" >
+            <xsl:value-of select="string('Tape IBM')" />
+	  </xsl:when>					
+          <xsl:when test="$sCompId = '22992'" >
+            <xsl:value-of select="string('Tape IBM')" />
+	  </xsl:when>					
+          <xsl:when test="$sCompId = '23579'" >
             <xsl:value-of select="string('Tape IBM')" />
 	  </xsl:when>					
           <xsl:when test="$sCompId = '12731'" >
