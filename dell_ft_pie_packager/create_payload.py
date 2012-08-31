@@ -112,17 +112,22 @@ def getPciDevices(dom=None, deviceNode=None):
 decorate(traceLog())
 def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
     common.assertFileExt(statusObj.file, '.pie', '.dup', '.zip')
-    
     packageXml = os.path.join(os.path.dirname(statusObj.file), "package.xml")
+    print packageXml
     if not os.path.exists(packageXml):
         raise common.skip
-
     common.copyToTmp(statusObj)
     shutil.copyfile( packageXml, os.path.join(statusObj.tmpdir, "package.xml") )
+    files = glob.glob(os.path.join(os.path.dirname(statusObj.file), "*zip.sig"))
+    signfilename =''
+    if files:
+        signfilename = files.pop()
+        print signfilename
+        print os.path.basename(signfilename)
+        shutil.copyfile( signfilename, os.path.join(statusObj.tmpdir, os.path.basename(signfilename)) )
 
     dom = xml.dom.minidom.parse(packageXml)
     dom.filename = packageXml
-
     payloadLoc = [
         [ "common/payload",   [ "common", "payload", "*" ] ],
         [ "Common/payload",   [ "Common", "payload", "*" ] ],
@@ -134,7 +139,10 @@ def genericPIE(statusObj, outputTopdir, logger, *args, **kargs):
     payloadDir = os.path.join(statusObj.tmpdir, "payload")
     os.makedirs(payloadDir)
     shutil.copyfile( packageXml, os.path.join(payloadDir, "package.xml") )
-    
+    if signfilename != '':
+        shutil.copyfile(signfilename, os.path.join(payloadDir,  os.path.basename(signfilename)) )
+
+
     pieGood = False
     for location in payloadLoc:
         subprocess.call( ["7za", "x", statusObj.tmpfile, location[0], "-o%s" % statusObj.tmpdir], stdout=file("/dev/null", "w+"), stderr=subprocess.STDOUT )
