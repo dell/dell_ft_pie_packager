@@ -1,6 +1,6 @@
 
 %define safe_name #safe_name#
-%define epoch     0
+%define epoch   5 
 
 # disable debug package because of the precompiled binaries.
 %define debug_package %{nil}
