@@ -12,14 +12,40 @@
     <xsl:variable name="sCompId">
       <xsl:value-of select="//SoftwareComponent/SupportedDevices/Device/@componentID"/>
     </xsl:variable>
+
     <xsl:choose >
-      <xsl:when test="//SoftwareComponent/LUCategory/@value= 'NIC'" >
+      <xsl:when test="//SoftwareComponent/LUCategory/@value= 'NIC' or //SoftwareComponent/LUCategory/@value= 'Network' or //SoftwareComponent/LUCategory/@value= 'Fibre Channel'" >
 	<xsl:choose >
 	  <xsl:when test="//SoftwareComponent/ComponentType/@value= 'FRMW'" >
 	    <xsl:choose>	
 	      <xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Seagate ES')" >
 		<xsl:value-of select="string('SASHDD SASHDD')" />
 	      </xsl:when>
+              <xsl:when test="contains(translate(string(//SoftwareComponent/Name/Display), 'intel', 'INTEL'), 'INTEL')" >
+                <xsl:value-of select="string('INTEL FRMW')" />
+              </xsl:when>
+              <xsl:when test="$sCompId = '27524'" >
+                <xsl:value-of select="string('INTEL FRMW')" />
+              </xsl:when>
+              <xsl:when test="$sCompId = '28546'" >
+                <xsl:value-of select="string('INTEL FRMW')" />
+              </xsl:when>
+              <xsl:when test="$sCompId = '29254' or $sCompId = '27485' or $sCompId = '27476' or $sCompId = '27482'" >
+                <xsl:value-of select="string('INTEL FRMW')" />
+              </xsl:when>
+              <xsl:when test="contains(translate(string(//SoftwareComponent/Name/Display), 'qlogic', 'QLOGIC'), 'QLOGIC')" >
+                <xsl:value-of select="string('QLOGIC FRMW')" />
+              </xsl:when>
+              <xsl:when test="$sCompId = '27489' or $sCompId = '27486' or $sCompId = '25504' or $sCompId = '29428'" >
+                <xsl:value-of select="string('QLOGIC FRMW')" />
+              </xsl:when>
+              <xsl:when test="contains(translate(string(//SoftwareComponent/Name/Display), 'emulex', 'EMULEX'), 'EMULEX')" >
+                <xsl:value-of select="string('EMULEX FRMW')" />
+              </xsl:when>
+              <xsl:when test="//SoftwareComponent/LUCategory/@value= 'Fibre Channel'" >
+                <xsl:value-of select="string('EMULEX FRMW')" />
+              </xsl:when>
+
 	      <xsl:otherwise >
 		<xsl:value-of select="string('BROADCOM FRMW')" />
 	      </xsl:otherwise>
@@ -41,10 +67,33 @@
       <xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Seagate ES')" >
 	<xsl:value-of select="string('SASHDD SASHDD')" />
       </xsl:when>
+      <xsl:when test="//SoftwareComponent/LUCategory/@value= 'SAS Drive'" >
+        <xsl:value-of select="string('SASHDD SASHDD')" />
+      </xsl:when>
+
+      <xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Seagate DRAGONFLY ES')" >
+	<xsl:value-of select="string('SASHDD SASHDD')" />
+      </xsl:when>
+      <xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Seagate 3.5')" >
+	<xsl:value-of select="string('SASHDD SASHDD')" />
+      </xsl:when>
+      <xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'PCIe SSD') or contains(string(//SoftwareComponent/Name/Display), 'PCIE SSD')" >
+	<xsl:choose>
+	 <xsl:when test="//SoftwareComponent/ComponentType/@value= 'FRMW'" >
+              <xsl:value-of select="string('FRMW PCISSD')" />
+          </xsl:when>
+	</xsl:choose>
+      </xsl:when>
       <xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Samsung SSD')" >
 	<xsl:value-of select="string('SASHDD SASHDD')" />
       </xsl:when>
       <xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'Backplane Expander')" >
+	<xsl:value-of select="string('SASBP SASBP')" />
+      </xsl:when>
+      <xsl:when test="contains(string(//SoftwareComponent/Name/Display), 'SAS Expander')" >
+	<xsl:value-of select="string('SASBP SASBP')" />
+      </xsl:when>
+      <xsl:when test="contains(string(//SoftwareComponent/Name/Display), '12G SEP')" >
 	<xsl:value-of select="string('SASBP SASBP')" />
       </xsl:when>
       <xsl:when test="//ComponentType/@value='DRVR' and contains(string(//SoftwareComponent/SupportedDevices/Device/Display), 'PERC S')">
@@ -56,13 +105,13 @@
       </xsl:when>
       <xsl:when test="//ComponentType/@value='APAC'" >
 	<xsl:choose>	
-	  <xsl:when test="//SoftwareComponent/Category/@value = 'DI'">
+	  <xsl:when test="//SoftwareComponent/Category/@value = 'DI' or //SoftwareComponent/Category/@value = 'Diagnostics'">
 	    <xsl:value-of select="string('MASER DIAGS')" />
 	  </xsl:when>
 	  <xsl:when test="//SoftwareComponent/Category/@value = 'SM'">
 	    <xsl:value-of select="string('MASER USC')" />
 	  </xsl:when>
-	  <xsl:when test="//SoftwareComponent/Category/@value = 'SV'">
+	  <xsl:when test="//SoftwareComponent/Category/@value = 'SV' or //SoftwareComponent/Category/@value = 'DD' or //SoftwareComponent/Category/@value = 'Drivers for OS Deployment'">
 	    <xsl:choose>
        	      <xsl:when test="$sCompId = '18981'" >
 		<xsl:value-of select="string('MASER DP')" />
@@ -80,6 +129,35 @@
 	  </xsl:otherwise>					
 	</xsl:choose>	
       </xsl:when>
+      <xsl:when test="//SoftwareComponent/Category/@value = 'ES' and $sCompId= '25227'">
+        <xsl:value-of select="string('ESM IDrac7')" />
+      </xsl:when>
+      <xsl:when test="//SoftwareComponent/Category/@value = 'ESM' and $sCompId= '25227'">
+        <xsl:value-of select="string('ESM IDrac7')" />
+      </xsl:when>
+      <xsl:when test="//SoftwareComponent/@releaseID='R201874'">
+        <xsl:value-of select="string('FRMW BMC')" />
+      </xsl:when>
+      <xsl:when test="//SoftwareComponent/@releaseID='R219074'">
+        <xsl:value-of select="string('FRMW BMC')" />
+      </xsl:when>
+
+      <xsl:when test="//SoftwareComponent/Category/@value = 'ESM' and $sCompId= '5814'">
+        <xsl:value-of select="string('FRMW BMC')" />
+      </xsl:when>
+      <xsl:when test="//SoftwareComponent/Category/@value = 'ES' and $sCompId= '5814'">
+        <xsl:value-of select="string('FRMW BMC')" />
+      </xsl:when>
+ 
+      <xsl:when test="//SoftwareComponent/Category/@value = 'ESM' and $sCompId= '160'">
+        <xsl:value-of select="string('ESM IDrac7')" />
+      </xsl:when>
+      <xsl:when test="//SoftwareComponent/Category/@value = 'ES' and $sCompId= '30815'">
+        <xsl:value-of select="string('ESM IDrac7')" />
+      </xsl:when>
+
+
+
       <xsl:when test="//SoftwareComponent/Category/@value = 'ES' and $sCompId= '13791'">
         <xsl:value-of select="string('ESM IMC')" />
       </xsl:when>
@@ -172,13 +250,21 @@
 	  </xsl:when>					
           <xsl:when test="$sCompId = '23579'" >
             <xsl:value-of select="string('Tape IBM')" />
-	  </xsl:when>					
+	  </xsl:when>
+          <xsl:when test="$sCompId = '27258'" >
+            <xsl:value-of select="string('Tape IBM')" />
+          </xsl:when>
+					
           <xsl:when test="$sCompId = '12731'" >
             <xsl:value-of select="string('Tape Prostor')" />
 	  </xsl:when>					
           <xsl:when test="$sCompId = '12732'" >
             <xsl:value-of select="string('Tape Prostor')" />
-	  </xsl:when>					
+	  </xsl:when>
+	  <xsl:when test="$sCompId = '30193'" >
+            <xsl:value-of select="string('Tape Prostor')" />
+          </xsl:when>
+					
           <xsl:otherwise>
             <xsl:value-of select="string('Tape Unknown')" />
 	  </xsl:otherwise>					
@@ -188,6 +274,12 @@
 	<xsl:value-of select="string('POMP SAS')" />
       </xsl:when>
       <xsl:when test="contains(translate(string(//SoftwareComponent/Name/Display), 'MD112o', 'MD1120'), 'MD1120')" >
+	<xsl:value-of select="string('POMP SAS')" />
+      </xsl:when>
+      <xsl:when test="contains(translate(string(//SoftwareComponent/Name/Display), 'MD1200', 'MD1200'), 'MD1200')" >
+	<xsl:value-of select="string('POMP SAS')" />
+      </xsl:when>
+      <xsl:when test="contains(translate(string(//SoftwareComponent/Name/Display), 'MD1220', 'MD1220'), 'MD1220')" >
 	<xsl:value-of select="string('POMP SAS')" />
       </xsl:when>
       <xsl:when test="contains(translate(string(//SoftwareComponent/Name/Display), 'cerc sata', 'CERC SATA'), 'CERC SATA')" >
@@ -244,6 +336,14 @@
       <xsl:when test="contains(translate(string(//SoftwareComponent/SupportedDevices/Device/Display), 'SAS 5/iR Integrated', 'SAS 5/IR Integrated'), 'SAS 5/IR Integrated')" >
 	<xsl:value-of select="string('SAS5iRIntegrated PERC')" />
       </xsl:when>
+      <xsl:when test="contains(translate(string(//SoftwareComponent/SupportedDevices/Device/Display), 'Internal Tape Adapter', 'Internal Tape Adapter'), 'Internal Tape Adapter')" >
+        <xsl:value-of select="string('SAS5iRIntegrated PERC')" />
+      </xsl:when> 
+      <xsl:when test="contains(translate(string(//SoftwareComponent/SupportedDevices/Device/Display), 'WD VULCAN,ES', 'WD VULCAN,ES'), 'WD VULCAN,ES')" >
+        <xsl:value-of select="string('SAS5iRIntegrated PERC')" />
+      </xsl:when>
+
+
       <xsl:when test="contains(translate(string(//SoftwareComponent/SupportedDevices/Device/Display), 'SAS 6', 'SAS 6'), 'SAS 6')" >
 	<xsl:value-of select="string('SAS6 SAS')" />
       </xsl:when>
